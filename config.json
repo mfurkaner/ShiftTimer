@@ -1,0 +1,25 @@
+{
+    "wifi_id" : "FiberHGW_TPDDFE",
+    "wifi_pass" : "dUwterdVqxE9",
+    "mola_beep_sayisi" : 5,
+    "mola_beep_ms_uzunlugu" : 1000,
+    "personel_sayisi" : 4,
+    "personeller" : [
+        {
+            "isim" : "Ali",
+            "rf_id_hex" : "00 FF EE 55"
+        },
+        {
+            "isim" : "Veli",
+            "rf_id_hex" : "00 FF EE 44"
+        },
+        {
+            "isim" : "Cihan Gencal",
+            "rf_id_hex" : "61 61 61 61"
+        },
+        {
+            "isim" : "Muhammet Furkan Er",
+            "rf_id_hex" : "16 16 16 16"
+        }
+    ]
+}
