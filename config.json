@@ -1,9 +1,21 @@
 {
-    "wifi_id" : "FiberHGW_TPDDFE",
-    "wifi_pass" : "dUwterdVqxE9",
+
     "mola_beep_sayisi" : 5,
     "mola_beep_ms_uzunlugu" : 1000,
-    "personel_sayisi" : 4,
+    "wifi" : [        
+        {
+        "wifi_id" : "FiberHGW_TPDDFE",
+        "wifi_pass" : "dUwterdVqxE9"
+        },
+        {
+            "wifi_id" : "MFE-iphone",
+            "wifi_pass" : "12345678"
+        },
+        {
+            "wifi_id" : "TurkTelekom_ZTX6Z7_2.4GHz",
+            "wifi_pass" : "Asparkardan"
+        }
+    ],
     "personeller" : [
         {
             "isim" : "Ali",
@@ -15,11 +27,15 @@
         },
         {
             "isim" : "Cihan Gencal",
-            "rf_id_hex" : "61 61 61 61"
+            "rf_id_hex" : "83 2D 32 FD"
         },
         {
             "isim" : "Muhammet Furkan Er",
-            "rf_id_hex" : "16 16 16 16"
+            "rf_id_hex" : "73 41 42 F7"
+        },
+        {  
+            "isim" : "Abdulrezzak",
+            "rf_id_hex" : "84 16 16 16"
         }
     ]
 }

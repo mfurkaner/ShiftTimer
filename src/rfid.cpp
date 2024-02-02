@@ -45,6 +45,7 @@ bool RFID::checkRFIDPresence(RFIDinfo& info){
     {
         return false;
     }
+    Serial.println("A card is present!");
     // Select one of the cards
     if ( ! rc522.PICC_ReadCardSerial()) 
     {

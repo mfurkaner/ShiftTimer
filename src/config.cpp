@@ -5,35 +5,33 @@ Configuration::Configuration(){}
 bool Configuration::ReadConfiguration(const String& config_dosya_adi, SPIClass& sd_spi, int sd_cs){
     bool set = false;
 
-    //SD.begin(sd_cs, sd_spi);
+    SD.begin(sd_cs, sd_spi);
 
-    //File config_dosya = SD.open(config_dosya_adi, FILE_READ);
+    File config_dosya = SD.open(config_dosya_adi, FILE_READ);
 
-    if ( /*config_dosya*/ true){
+    if ( config_dosya ){
         
         //String dosya_verisi = "{\"wifi_id\" : \"TurkTelekom_ZTX6Z7_2.4GHz\",\"wifi_pass\" : \"Asparkardan\",\"mola_beep_sayisi\" : 5,\"mola_beep_ms_uzunlugu\" : 1000,\"personel_sayisi\":2,\"personeller\" : [{\"isim\" : \"Cihan\",\"rf_id_hex\" : \"83 2D 32 FD\"},{\"isim\" : \"Furkan\",\"rf_id_hex\" : \"73 41 42 F7\"}]}";
-        String dosya_verisi = "{\"wifi\" : [{\"wifi_id\" : \"TurkTelekom_ZTX6Z7_2.4GHz\",\"wifi_pass\" : \"Asparkardan\"},{\"wifi_id\" : \"M Furkan iPhone'u\", \"wifi_pass\" : \"12345678\"}],\"mola_beep_sayisi\" : 5,\"mola_beep_ms_uzunlugu\" : 1000,\"personeller\" : [{\"isim\" : \"Cihan\",\"rf_id_hex\" : \"83 2D 32 FD\"},{\"isim\" : \"Furkan\",\"rf_id_hex\" : \"73 41 42 F7\"}]}";
+        String dosya_verisi ;//= "{\"wifi\" : [{\"wifi_id\" : \"TurkTelekom_ZTX6Z7_2.4GHz\",\"wifi_pass\" : \"Asparkardan\"},{\"wifi_id\" : \"FiberHGW_TPDDFE\", \"wifi_pass\" : \"dUwterdVqxE9\"}],\"mola_beep_sayisi\" : 5,\"mola_beep_ms_uzunlugu\" : 1000,\"personeller\" : [{\"isim\" : \"Cihan\",\"rf_id_hex\" : \"83 2D 32 FD\"},{\"isim\" : \"Furkan\",\"rf_id_hex\" : \"73 41 42 F7\"}]}";
         
-        /*
         while (config_dosya.available()) {
-            dosya_verisi += config_dosya.read();
-        }*/
+            dosya_verisi += config_dosya.readString();
+        }
+        Serial.println("Read : ");
+        Serial.println(dosya_verisi);
 
-        StaticJsonDocument<1024> doc;
+        StaticJsonDocument<2048> doc;
         DeserializationError error = deserializeJson(doc, dosya_verisi);
         if (error) {
             Serial.print(F("deserializeJson() failed: "));
             Serial.println(error.f_str());
             return false;
         }
-        else{
-            Serial.println("Read the config file as :");
-            Serial.println(dosya_verisi);
-        }
 
         //personel_sayisi = doc["wifi_sayisi"].as<int>();
-        JsonArray wifi = doc["wifi"]; 
+        JsonArray wifi = doc["wifi"].as<JsonArray>(); 
         wifi_sayisi = wifi.size();
+        Serial.printf("Wifi settings fount to be %d long\n", wifi_sayisi);
 
         wifi_conf = new WifiConfig[wifi_sayisi];
 
@@ -51,6 +49,7 @@ bool Configuration::ReadConfiguration(const String& config_dosya_adi, SPIClass& 
 
         JsonArray elemanlar = doc["personeller"];
         personel_sayisi = elemanlar.size();
+        Serial.printf("Personel settings fount to be %d long\n", personel_sayisi);
 
         personeller = new Personel[personel_sayisi];
         personeller_girdi = new bool[personel_sayisi];
@@ -61,17 +60,19 @@ bool Configuration::ReadConfiguration(const String& config_dosya_adi, SPIClass& 
             personeller_girdi[i] = false;
         }
 
-        //config_dosya.close();
-        //SD.end();
+        config_dosya.close();
+        SD.end();
         for(int i = 0 ; i < wifi_sayisi ; i++){
             Serial.print(" -");
             Serial.printf("%s : %s\n", wifi_conf[i].wifi_id, wifi_conf[i].wifi_pass);
         }
         //Serial.println(wifi_id);
         //Serial.println(wifi_pass);
-        Serial.println("Mola beep sayisi : " + mola_beep_sayisi);
-        Serial.println("Mola beep uzunlugu : " + mola_beep_ms_uzunlugu);
-        Serial.println("Personel sayisi : " + personel_sayisi);
+        Serial.flush();
+        Serial.printf("Mola beep sayisi : %d\n", mola_beep_sayisi);
+        Serial.printf("Mola beep uzunlugu : %d\n", mola_beep_ms_uzunlugu);
+        Serial.printf("Personel sayisi : %d\n", personel_sayisi);
+
         
         for(int i = 0 ; i < personel_sayisi ; i++){
             Serial.print(" -");

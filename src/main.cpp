@@ -16,7 +16,7 @@
 #define SD_RFID_MISO 19
 #define SD_RFID_MOSI 23
 
-#define CONFIG_FILE_NAME "config.json"
+#define CONFIG_FILE_NAME "/config.json"
 
 const int mola_saat = 11;
 const int mola_dk = 31;
@@ -66,6 +66,7 @@ void updateLocalTime(){
         //init and get the time
         configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
         printLocalTime();
+        last_update_millis = millis();
 
         //disconnect WiFi as it's no longer needed
         WiFi.disconnect(true);
@@ -93,8 +94,8 @@ void setup() {
   // put your setup code here, to run once:
     Serial.begin(115200); 
     Serial.println("Starting the esp...");
-    display.init();
     delay(1000);
+
 
     SPI.begin(SD_RFID_SCK, SD_RFID_MISO, SD_RFID_MOSI, SD_CS);
     pinMode(RFID_CS, OUTPUT);
@@ -102,11 +103,17 @@ void setup() {
     pinMode(SD_CS, OUTPUT); 
     pinMode(27, OUTPUT); 
     digitalWrite(27, LOW);
-
+    delay(500);
+    
     config.ReadConfiguration(CONFIG_FILE_NAME, SPI, SD_CS);
+    //SPI.end();
+    updateLocalTime();
+
+    delay(500);
+
+    display.init();
     rfid.init(config.personeller, config.personel_sayisi);
 
-    updateLocalTime();
 }
 
 void loop() { 
@@ -119,7 +126,7 @@ void loop() {
     // 24 saatte bir internete bağlanıp cihaz saatini güncelle
     if ( millis() > last_update_millis + update_interval_millis){
         updateLocalTime();
-        last_update_millis = millis();
+
     }
     // Cihaz açık süresi sayacı max değere ulaştığında (~49 gün) cihazı tekrar başlat
     else if( millis() < last_update_millis){
