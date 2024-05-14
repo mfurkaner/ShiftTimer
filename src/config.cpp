@@ -5,8 +5,14 @@ Configuration::Configuration(){}
 bool Configuration::ReadConfiguration(const String& config_dosya_adi, SPIClass& sd_spi, int sd_cs){
     bool set = false;
 
+#ifdef DEBUG
+    Serial.println("SD.begin()");
+#endif
     SD.begin(sd_cs, sd_spi);
 
+#ifdef DEBUG
+    Serial.println("SD.open()");
+#endif
     File config_dosya = SD.open(config_dosya_adi, FILE_READ);
 
     if ( config_dosya ){
@@ -61,7 +67,7 @@ bool Configuration::ReadConfiguration(const String& config_dosya_adi, SPIClass& 
         }
 
         config_dosya.close();
-        SD.end();
+        //SD.end();
         for(int i = 0 ; i < wifi_sayisi ; i++){
             Serial.print(" -");
             Serial.printf("%s : %s\n", wifi_conf[i].wifi_id, wifi_conf[i].wifi_pass);

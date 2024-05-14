@@ -45,6 +45,8 @@ public:
 
     void handleDisplay(const struct tm& time);
     void handleDisplay(const struct tm& time, const RFIDinfo& info);
+
+    SPIClass getSPI();
 };
 
 #endif

@@ -20,7 +20,8 @@ class RFID{
 public:
     RFID(int rfid_cs, int rfid_rst);
 
-    void init(Personel* personel, int personel_sayisi);
+    void init();
+    void configure(Personel* personel, int personel_sayisi);
 
     bool checkRFIDPresence(RFIDinfo& info);
 

@@ -2,7 +2,6 @@
 
 
 RFID::RFID(int rfid_cs, int rfid_rst) : rc522(rfid_cs, rfid_rst){
-
 }
 
 void RFID::setPersonels(Personel* personel, int personel_say){
@@ -10,11 +9,12 @@ void RFID::setPersonels(Personel* personel, int personel_say){
     this->personel_sayisi = personel_say;
 }
 
-void RFID::init(Personel* personel, int personel_sayisi){
-    
-    setPersonels(personel, personel_sayisi);
-    
+void RFID::init(){
     rc522.PCD_Init();
+}
+
+void RFID::configure(Personel* personel, int personel_say){
+    setPersonels(personel, personel_say);
 }
 
 
@@ -40,17 +40,18 @@ void BuzzerBeepUzun(void* para){
 }
 
 bool RFID::checkRFIDPresence(RFIDinfo& info){
+    
         // Look for new cards
-    if ( ! rc522.PICC_IsNewCardPresent()) 
-    {
+    if ( ! rc522.PICC_IsNewCardPresent()) {
+        Serial.println("No card found...");
         return false;
     }
+    
     Serial.println("A card is present!");
     // Select one of the cards
     if ( ! rc522.PICC_ReadCardSerial()) 
-    {
         return false;
-    }
+    
     //Show UID on serial monitor
     Serial.print("RFID found! Tag :");
     String content= "";

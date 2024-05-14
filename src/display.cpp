@@ -147,3 +147,8 @@ void Display::clearContentZoneAfter(int ms){
 
     xTaskCreate(clearAfter, "ClearAfter", 5000, (void*)cas, 1, NULL);
 }
+
+
+SPIClass Display::getSPI(){
+    return tft.getSPIinstance(); 
+}
