@@ -43,6 +43,7 @@ public:
 
     void drawImage();
 
+    void drawBulutGuncelleme(const struct tm& time);
     void handleDisplay(const struct tm& time);
     void handleDisplay(const struct tm& time, const RFIDinfo& info);
 

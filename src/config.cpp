@@ -1,24 +1,17 @@
 #include "../include/config.h"
 
-Configuration::Configuration(){}
+SDHandler::SDHandler(){}
 
-bool Configuration::ReadConfiguration(const String& config_dosya_adi, SPIClass& sd_spi, int sd_cs){
+bool SDHandler::ReadConfiguration(const String& config_dosya_adi, SPIClass& sd_spi, int sd_cs){
     bool set = false;
 
-#ifdef DEBUG
-    Serial.println("SD.begin()");
-#endif
     SD.begin(sd_cs, sd_spi);
 
-#ifdef DEBUG
-    Serial.println("SD.open()");
-#endif
     File config_dosya = SD.open(config_dosya_adi, FILE_READ);
 
     if ( config_dosya ){
-        
-        //String dosya_verisi = "{\"wifi_id\" : \"TurkTelekom_ZTX6Z7_2.4GHz\",\"wifi_pass\" : \"Asparkardan\",\"mola_beep_sayisi\" : 5,\"mola_beep_ms_uzunlugu\" : 1000,\"personel_sayisi\":2,\"personeller\" : [{\"isim\" : \"Cihan\",\"rf_id_hex\" : \"83 2D 32 FD\"},{\"isim\" : \"Furkan\",\"rf_id_hex\" : \"73 41 42 F7\"}]}";
-        String dosya_verisi ;//= "{\"wifi\" : [{\"wifi_id\" : \"TurkTelekom_ZTX6Z7_2.4GHz\",\"wifi_pass\" : \"Asparkardan\"},{\"wifi_id\" : \"FiberHGW_TPDDFE\", \"wifi_pass\" : \"dUwterdVqxE9\"}],\"mola_beep_sayisi\" : 5,\"mola_beep_ms_uzunlugu\" : 1000,\"personeller\" : [{\"isim\" : \"Cihan\",\"rf_id_hex\" : \"83 2D 32 FD\"},{\"isim\" : \"Furkan\",\"rf_id_hex\" : \"73 41 42 F7\"}]}";
+        sd_open = true;
+        String dosya_verisi ;
         
         while (config_dosya.available()) {
             dosya_verisi += config_dosya.readString();
@@ -33,8 +26,7 @@ bool Configuration::ReadConfiguration(const String& config_dosya_adi, SPIClass& 
             Serial.println(error.f_str());
             return false;
         }
-
-        //personel_sayisi = doc["wifi_sayisi"].as<int>();
+     
         JsonArray wifi = doc["wifi"].as<JsonArray>(); 
         wifi_sayisi = wifi.size();
         Serial.printf("Wifi settings fount to be %d long\n", wifi_sayisi);
@@ -46,12 +38,8 @@ bool Configuration::ReadConfiguration(const String& config_dosya_adi, SPIClass& 
             strlcpy(wifi_conf[i].wifi_pass, wifi[i]["wifi_pass"], sizeof(wifi_conf[i].wifi_pass)); 
         }
 
-        //strlcpy(wifi_id, doc["wifi_id"], sizeof(wifi_id)); 
-        //strlcpy(wifi_pass, doc["wifi_pass"], sizeof(wifi_pass)); 
-
         mola_beep_sayisi = doc["mola_beep_sayisi"].as<int>();
         mola_beep_ms_uzunlugu = doc["mola_beep_ms_uzunlugu"].as<int>();
-        //personel_sayisi = doc["personel_sayisi"].as<int>();
 
         JsonArray elemanlar = doc["personeller"];
         personel_sayisi = elemanlar.size();
@@ -67,13 +55,11 @@ bool Configuration::ReadConfiguration(const String& config_dosya_adi, SPIClass& 
         }
 
         config_dosya.close();
-        //SD.end();
         for(int i = 0 ; i < wifi_sayisi ; i++){
             Serial.print(" -");
             Serial.printf("%s : %s\n", wifi_conf[i].wifi_id, wifi_conf[i].wifi_pass);
         }
-        //Serial.println(wifi_id);
-        //Serial.println(wifi_pass);
+
         Serial.flush();
         Serial.printf("Mola beep sayisi : %d\n", mola_beep_sayisi);
         Serial.printf("Mola beep uzunlugu : %d\n", mola_beep_ms_uzunlugu);
@@ -92,4 +78,38 @@ bool Configuration::ReadConfiguration(const String& config_dosya_adi, SPIClass& 
     }
 
     return set;
+}
+
+
+bool SDHandler::LogGSData(const String& log_dosya_adi, const GSData& data){
+    if (sd_open){
+        String dirname = "/" + data.tarih;
+        dirname = dirname.substring(dirname.indexOf('_') + 1);
+        if( SD.exists(dirname) == false)
+            SD.mkdir(dirname);
+        
+        dirname += "/" + log_dosya_adi;
+        File log = SD.open(dirname, FILE_WRITE);
+        if(log){
+            String newline = data.tarih;
+            newline.replace('-', '/');
+            newline += ", ";
+
+            newline += data.saat;
+            newline.replace('-', ':');
+            newline += ", ";
+
+            newline += data.isim;
+            newline += ", ";
+
+            newline += data.tag;
+
+            log.println(newline);
+            log.close();
+            Serial.println("Data written to : " + dirname);
+            return true;
+        }
+        log.close();
+    }
+    return false;
 }

@@ -1,5 +1,4 @@
 {
-
     "mola_beep_sayisi" : 5,
     "mola_beep_ms_uzunlugu" : 1000,
     "wifi" : [        
@@ -34,8 +33,8 @@
             "rf_id_hex" : "73 41 42 F7"
         },
         {  
-            "isim" : "Abdulrezzak",
-            "rf_id_hex" : "84 16 16 16"
+            "isim" : "Sinan Gencal",
+            "rf_id_hex" : "84 84 43 BB"
         }
     ]
 }
