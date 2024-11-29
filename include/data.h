@@ -10,6 +10,10 @@ struct GSData{
     String isim;
     String tag;
 
+    GSData(){
+        
+    }
+
     GSData(String tarih, String saat, String isim, String tag) : tarih(tarih), saat(saat), isim(isim), tag(tag){
         tag.replace(' ', '_');
         isim.replace(' ', '_');

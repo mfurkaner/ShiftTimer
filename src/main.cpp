@@ -35,7 +35,10 @@ unsigned long last_update_millis = 0;
 const unsigned long update_interval_millis = 86400000; // 24 saat
 
 unsigned long last_online_check_millis = 0;
-unsigned long online_check_interval_millis = 300000;
+unsigned long online_check_interval_millis = 60000; // Dakikada bir
+
+#define GSDATA_NOTSENT_BUFFER_SIZE 10
+
 
 SDHandler config;
 Display display;
@@ -198,12 +201,30 @@ void loop() {
     // Handle RFID
     RFIDinfo rfidinfo;
     if( rfid.checkRFIDPresence(rfidinfo)){
+        static GSData gsdata_buffer[GSDATA_NOTSENT_BUFFER_SIZE];
+        static int gsdata_buffer_index = 0;
         display.handleDisplay(timeinfo, rfidinfo);
+
         // Handle google sheets
+        GSData gsd(rfidinfo, timeinfo);
         if( got_time ){
-            GSData gsd(rfidinfo, timeinfo);
             config.LogGSData(LOG_FILE_NAME, gsd);
-            gscom.send(gsd);
+            if ( WiFi.status() == WL_CONNECTED){
+                gscom.send(gsd);
+
+                for(int i = 0; i < GSDATA_NOTSENT_BUFFER_SIZE; i++){
+                    if(gsdata_buffer[i].tag.isEmpty() == false){
+                        gscom.send(gsdata_buffer[i]);
+                        gsdata_buffer[i] = GSData();
+                    }
+                }
+            }
+            else{
+                if(gsdata_buffer_index == GSDATA_NOTSENT_BUFFER_SIZE)
+                    gsdata_buffer_index = 0;
+                gsdata_buffer[gsdata_buffer_index] = gsd;
+                gsdata_buffer_index++;
+            }
         }
     }
     else
