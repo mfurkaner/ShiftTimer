@@ -16,8 +16,9 @@ class GSCommunications{
     uint8_t gsdata_buffer_send_unsuc_tries = 0;
     bool _send(GSData data);
 public:
-    GSCommunications(String webAppUrl, SDHandler* conf) : webAppUrl(webAppUrl), config(conf){}
+    GSCommunications(SDHandler* conf) : config(conf){}
 
+    void initFromConfig();
     void send(GSData data);
     bool sendBuffer();
 

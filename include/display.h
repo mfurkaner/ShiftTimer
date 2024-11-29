@@ -7,8 +7,8 @@
 #include "rfid.h"
 
 #define DATE_TIME_COLOR TFT_WHITE
-#define TEXT_COLOR TFT_WHITE
-#define RFID_TAG_COLOR TFT_YELLOW
+#define TEXT_COLOR TFT_BLACK
+#define RFID_TAG_COLOR TFT_ORANGE
 
 #define TIME_ZONE_HEIGHT 40
 #define TIME_ZONE_WIDTH TFT_WIDTH
@@ -25,13 +25,13 @@ class Display{
     bool clearContentZone = true;
     struct tm timeinfo;
 
-    char* sirket_adi = "C.G.E Ltd Sti";
+    char* sirket_adi = "Aspar OTO";
 
     void drawTimeZone();
     void drawContentZone();
     void drawWelcomeScreen();
     void drawDateTime();
-    void drawRFID(const RFIDinfo& info);
+    void drawRFID(const struct tm& time, const RFIDinfo& info);
 
     void clearContentZoneAfter(int ms);
 public:
@@ -46,6 +46,8 @@ public:
     void drawBulutGuncelleme(const struct tm& time);
     void handleDisplay(const struct tm& time);
     void handleDisplay(const struct tm& time, const RFIDinfo& info);
+
+    void drawFail(std::string message);
 
     SPIClass getSPI();
 };

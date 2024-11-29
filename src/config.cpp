@@ -1,5 +1,7 @@
 #include "../include/config.h"
 
+#define GSCOM_WEBAPP_URL "https://script.google.com/macros/s/AKfycbxo2-Qc7fuoEyIuE0Y8nQ-tBbnC6plPaXXvd-0TE5qwkem26V2AC9KAHxC2UbnVtYg7/exec"
+
 SDHandler::SDHandler(){}
 
 bool SDHandler::ReadConfiguration(const String& config_dosya_adi, SPIClass& sd_spi, int sd_cs){
@@ -41,9 +43,21 @@ bool SDHandler::ReadConfiguration(const String& config_dosya_adi, SPIClass& sd_s
         mola_beep_sayisi = doc["mola_beep_sayisi"].as<int>();
         mola_beep_ms_uzunlugu = doc["mola_beep_ms_uzunlugu"].as<int>();
 
+        if(doc.containsKey("web_app_url")){
+            size_t max = sizeof(webapp_url) > sizeof(doc["web_app_url"]) ? sizeof(doc["web_app_url"]) : sizeof(webapp_url);
+            
+            if ( max == sizeof(webapp_url) )
+                Serial.printf("web_app_url size is more than allowed %d! : %d\n", sizeof(webapp_url), sizeof(doc["web_app_url"]));
+            strlcpy(webapp_url, doc["webapp_url"], max);
+        }
+        else{
+            strlcpy(webapp_url, GSCOM_WEBAPP_URL, sizeof(GSCOM_WEBAPP_URL));
+        }
+
+
         JsonArray elemanlar = doc["personeller"];
         personel_sayisi = elemanlar.size();
-        Serial.printf("Personel settings fount to be %d long\n", personel_sayisi);
+        Serial.printf("Personel settings found to be %d long\n", personel_sayisi);
 
         personeller = new Personel[personel_sayisi];
         personeller_girdi = new bool[personel_sayisi];
@@ -89,7 +103,11 @@ bool SDHandler::LogGSData(const String& log_dosya_adi, const GSData& data){
             SD.mkdir(dirname);
         
         dirname += "/" + log_dosya_adi;
-        File log = SD.open(dirname, FILE_WRITE);
+        File log;
+        if(SD.exists(dirname) == false)
+            log = SD.open(dirname, FILE_WRITE);
+        else
+            log = SD.open(dirname, FILE_APPEND);
         if(log){
             String newline = data.tarih;
             newline.replace('-', '/');

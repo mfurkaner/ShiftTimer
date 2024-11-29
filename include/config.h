@@ -24,6 +24,8 @@ struct SDHandler{
     Personel* personeller;
     bool* personeller_girdi;
 
+    char webapp_url[120];
+
     SDHandler();
 
     bool ReadConfiguration(const String& config_dosya_adi, SPIClass& sd_spi, int sd_cs);

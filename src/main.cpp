@@ -40,7 +40,7 @@ unsigned long online_check_interval_millis = 300000;
 SDHandler config;
 Display display;
 RFID rfid(RFID_CS, RFID_RST);
-GSCommunications gscom(String(GSCOM_WEBAPP_URL), &config);
+GSCommunications gscom(&config);
 
 bool connectToWifiIndex(int index){
     if(WiFi.status() != WL_CONNECTED){
@@ -134,10 +134,10 @@ void setup() {
     Serial.begin(115200); 
     WiFi.mode(WIFI_STA);
     Serial.println("Starting the esp...");
+    SPI.begin(SD_RFID_SCK, SD_RFID_MISO, SD_RFID_MOSI);
+    display.init();
     delay(1000);
 
-
-    SPI.begin(SD_RFID_SCK, SD_RFID_MISO, SD_RFID_MOSI);
     pinMode(RFID_CS, OUTPUT);
     digitalWrite(RFID_CS, HIGH);
     pinMode(RFID_RST, OUTPUT);      
@@ -146,7 +146,13 @@ void setup() {
     digitalWrite(BUZZER_PIN, LOW);
     delay(500);
 
-    config.ReadConfiguration(CONFIG_FILE_NAME, SPI, SD_CS);
+    bool read_config = config.ReadConfiguration(CONFIG_FILE_NAME, SPI, SD_CS);
+    if(read_config == false) {
+        display.drawFail(" SD card fail!");
+        delay(5000);
+        ESP.restart();
+    }
+
     digitalWrite(SD_CS, HIGH);
     digitalWrite(RFID_CS, LOW);
     //SPI.end();
@@ -154,7 +160,8 @@ void setup() {
 
     delay(500);
 
-    display.init();
+    gscom.initFromConfig();
+
     rfid.init();
     rfid.configure(config.personeller, config.personel_sayisi);
 }
@@ -202,5 +209,4 @@ void loop() {
     else
         display.handleDisplay(timeinfo);
     
-
 }

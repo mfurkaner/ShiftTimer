@@ -1,6 +1,7 @@
 {
     "mola_beep_sayisi" : 5,
     "mola_beep_ms_uzunlugu" : 1000,
+    "web_app_url" : "https://script.google.com/macros/s/AKfycbxo2-Qc7fuoEyIuE0Y8nQ-tBbnC6plPaXXvd-0TE5qwkem26V2AC9KAHxC2UbnVtYg7/exec",
     "wifi" : [        
         {
         "wifi_id" : "FiberHGW_TPDDFE",
@@ -37,4 +38,4 @@
             "rf_id_hex" : "84 84 43 BB"
         }
     ]
-}
+} 

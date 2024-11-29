@@ -1,5 +1,11 @@
 #include "../include/gs.h"
 
+
+void GSCommunications::initFromConfig(){
+    webAppUrl = config->webapp_url;
+    Serial.printf("GSwebAppUrl set to : %s\n", webAppUrl);
+}
+
 bool GSCommunications::_send(GSData data){
     if (WiFi.status() == WL_CONNECTED) {
         // Create a URL for sending or writing data to Google Sheets.
