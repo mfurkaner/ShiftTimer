@@ -30,7 +30,7 @@ class Display{
     void drawTimeZone();
     void drawContentZone();
     void drawWelcomeScreen();
-    void drawDateTime();
+    void drawDateTime(bool isConnected);
     void drawRFID(const struct tm& time, const RFIDinfo& info);
 
     void clearContentZoneAfter(int ms);
@@ -44,8 +44,8 @@ public:
     void drawImage();
 
     void drawBulutGuncelleme(const struct tm& time);
-    void handleDisplay(const struct tm& time);
-    void handleDisplay(const struct tm& time, const RFIDinfo& info);
+    void handleDisplay(const struct tm& time, bool isConnected);
+    void handleDisplay(const struct tm& time, bool isConnected, const RFIDinfo& info);
 
     void drawFail(std::string message);
 

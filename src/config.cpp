@@ -1,6 +1,6 @@
 #include "../include/config.h"
 
-#define GSCOM_WEBAPP_URL "https://script.google.com/macros/s/AKfycbxo2-Qc7fuoEyIuE0Y8nQ-tBbnC6plPaXXvd-0TE5qwkem26V2AC9KAHxC2UbnVtYg7/exec"
+#define GSCOM_WEBAPP_URL "https://script.google.com/macros/s/AKfycbyEvXIZWD4rpXWfFRfPlq2AHYAVqZ4iTZTzaDpEkwNqmFbHrr8-YsmYgQnX7ujOwu8r/exec"
 
 SDHandler::SDHandler(){}
 
@@ -44,14 +44,15 @@ bool SDHandler::ReadConfiguration(const String& config_dosya_adi, SPIClass& sd_s
         mola_beep_ms_uzunlugu = doc["mola_beep_ms_uzunlugu"].as<int>();
 
         if(doc.containsKey("web_app_url")){
-            size_t max = sizeof(webapp_url) > sizeof(doc["web_app_url"]) ? sizeof(doc["web_app_url"]) : sizeof(webapp_url);
+            size_t max = strlen(doc["web_app_url"]) < sizeof(webapp_url) ? strlen(doc["web_app_url"]) + 1 : sizeof(webapp_url);
             
             if ( max == sizeof(webapp_url) )
                 Serial.printf("web_app_url size is more than allowed %d! : %d\n", sizeof(webapp_url), sizeof(doc["web_app_url"]));
-            strlcpy(webapp_url, doc["webapp_url"], max);
+            strlcpy(webapp_url, doc["web_app_url"], max);
+            Serial.printf("WebAppURL = %s\n", webapp_url);
         }
         else{
-            strlcpy(webapp_url, GSCOM_WEBAPP_URL, sizeof(GSCOM_WEBAPP_URL));
+            strlcpy(webapp_url, GSCOM_WEBAPP_URL, sizeof(GSCOM_WEBAPP_URL) + 1);
         }
 
 

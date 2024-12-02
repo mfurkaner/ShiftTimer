@@ -97,12 +97,15 @@ void Display::drawImage(){
     tft.setSwapBytes(false);
 }
 
-void Display::drawDateTime(){
+void Display::drawDateTime(bool isConnected){
     // Tarih
     tft.setTextSize(2);
     tft.setTextColor(DATE_TIME_COLOR);
     tft.setCursor(10, 15);
     tft.printf("%02d/%02d/%02d", timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_year - 100);
+
+    uint32_t wifi_color = (isConnected ? TFT_GREEN : TFT_RED);
+    tft.fillCircle(120, 20, 10, wifi_color);
 
     // Saat
     tft.setTextSize(3);
@@ -162,7 +165,8 @@ void Display::drawRFID(const struct tm& time, const RFIDinfo& info){
             tft.setCursor(CONTENT_ZONE_MARGIN, RFID_SCREEN_TIME_Y + 40 + RFID_SCREEN_TIME_NAME_MARGIN);
             tft.printf("%s", info.name);
         }
-            
+        tft.drawRoundRect(CONTENT_ZONE_MARGIN/2, TIME_ZONE_HEIGHT + CONTENT_ZONE_MARGIN/2,
+        CONTENT_ZONE_WIDTH, CONTENT_ZONE_HEIGHT, 10, TFT_DARKGREEN); 
     }
     else{
         tft.setTextSize(2);
@@ -177,7 +181,7 @@ void Display::drawRFID(const struct tm& time, const RFIDinfo& info){
 
 }
 
-void Display::handleDisplay(const struct tm& time){
+void Display::handleDisplay(const struct tm& time, bool isConnected){
     if (time.tm_min != timeinfo.tm_min || time.tm_hour != timeinfo.tm_hour || time.tm_yday != timeinfo.tm_yday){
         timeinfo = time;
         clearTimeZone = true;
@@ -192,20 +196,20 @@ void Display::handleDisplay(const struct tm& time){
     }
     if (clearTimeZone){
         drawTimeZone();
-        drawDateTime();
+        drawDateTime(isConnected);
         clearTimeZone = false;
     }
 
 }
 
-void Display::handleDisplay(const struct tm& time, const RFIDinfo& info){
+void Display::handleDisplay(const struct tm& time, bool isConnected,  const RFIDinfo& info){
     if (time.tm_min != timeinfo.tm_min || time.tm_hour != timeinfo.tm_hour || time.tm_yday != timeinfo.tm_yday){
         timeinfo = time;
     }
     clearContentZone = false;
     fill(TFT_BLACK);
     drawTimeZone();
-    drawDateTime();
+    drawDateTime(isConnected);
     drawContentZone();
     drawRFID(time, info);
 

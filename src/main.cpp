@@ -23,7 +23,6 @@
 
 #define CONFIG_FILE_NAME "/config.json"
 #define LOG_FILE_NAME "log.csv"
-#define GSCOM_WEBAPP_URL "https://script.google.com/macros/s/AKfycbxo2-Qc7fuoEyIuE0Y8nQ-tBbnC6plPaXXvd-0TE5qwkem26V2AC9KAHxC2UbnVtYg7/exec"
 const int mola_saat = 17;
 const int mola_dk = 17;
 
@@ -35,7 +34,10 @@ unsigned long last_update_millis = 0;
 const unsigned long update_interval_millis = 86400000; // 24 saat
 
 unsigned long last_online_check_millis = 0;
-unsigned long online_check_interval_millis = 60000; // Dakikada bir
+unsigned long online_check_interval_millis = 30000; // Dakikada bir
+
+unsigned long last_buffer_sent_millis = 0;
+unsigned long buffer_send_interval_millis = 30000;
 
 #define GSDATA_NOTSENT_BUFFER_SIZE 10
 
@@ -193,41 +195,37 @@ void loop() {
     }
 
     // 24 saatte bir internete bağlanıp cihaz saatini güncelle
-    if ( millis() > last_update_millis + update_interval_millis)
+    if ( millis() > last_update_millis + update_interval_millis){
         updateLocalTime();
+        last_online_check_millis = millis();
+    }
+
 
     gscom.checkAndHandleSendBufferInterval();
 
     // Handle RFID
     RFIDinfo rfidinfo;
+    bool isConnected = WiFi.status() == WL_CONNECTED;
     if( rfid.checkRFIDPresence(rfidinfo)){
         static GSData gsdata_buffer[GSDATA_NOTSENT_BUFFER_SIZE];
         static int gsdata_buffer_index = 0;
-        display.handleDisplay(timeinfo, rfidinfo);
+        display.handleDisplay(timeinfo, isConnected, rfidinfo);
 
         // Handle google sheets
         GSData gsd(rfidinfo, timeinfo);
         if( got_time ){
             config.LogGSData(LOG_FILE_NAME, gsd);
-            if ( WiFi.status() == WL_CONNECTED){
-                gscom.send(gsd);
-
-                for(int i = 0; i < GSDATA_NOTSENT_BUFFER_SIZE; i++){
-                    if(gsdata_buffer[i].tag.isEmpty() == false){
-                        gscom.send(gsdata_buffer[i]);
-                        gsdata_buffer[i] = GSData();
-                    }
-                }
-            }
-            else{
-                if(gsdata_buffer_index == GSDATA_NOTSENT_BUFFER_SIZE)
-                    gsdata_buffer_index = 0;
-                gsdata_buffer[gsdata_buffer_index] = gsd;
-                gsdata_buffer_index++;
-            }
+            gscom.send(gsd);
+            last_buffer_sent_millis = millis();
         }
     }
-    else
-        display.handleDisplay(timeinfo);
+    else{
+        display.handleDisplay(timeinfo, isConnected);
+        if (isConnected && millis() > last_buffer_sent_millis + buffer_send_interval_millis && got_time){
+            gscom.sendBuffer();
+            last_buffer_sent_millis = millis();
+        }
+    }
+
     
 }

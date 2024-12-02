@@ -9,8 +9,8 @@ void GSCommunications::initFromConfig(){
 bool GSCommunications::_send(GSData data){
     if (WiFi.status() == WL_CONNECTED) {
         // Create a URL for sending or writing data to Google Sheets.
-        String Send_Data_URL = webAppUrl + "?sts=write";
-        Send_Data_URL += "&tarih=" + data.tarih;
+        String Send_Data_URL = webAppUrl + "?";
+        Send_Data_URL += "tarih=" + data.tarih;
         Send_Data_URL += "&saat=" + data.saat;
         Send_Data_URL += "&isim=" + data.isim;
         Send_Data_URL += "&tag=" + data.tag;
